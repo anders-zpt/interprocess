@@ -1,10 +1,10 @@
 use super::imports::*;
+use std::convert::TryInto;
 use std::{
     io::{self, IoSlice, IoSliceMut},
     marker::PhantomData,
     mem::ManuallyDrop,
 };
-use to_method::To;
 
 #[repr(transparent)]
 pub(super) struct FdOps(pub(super) c_int, PhantomData<*mut ()>);
@@ -27,7 +27,7 @@ impl FdOps {
     }
     pub fn read_vectored(&self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         let (success, bytes_read) = unsafe {
-            let num_bufs = bufs.len().try_to::<c_int>().unwrap_or(c_int::MAX);
+            let num_bufs = TryInto::<c_int>::try_into(bufs.len()).unwrap_or(c_int::MAX);
             let size_or_err =
                 libc::readv(self.as_raw_fd(), bufs.as_mut_ptr() as *const _, num_bufs);
             (size_or_err >= 0, size_or_err as usize)
@@ -53,7 +53,7 @@ impl FdOps {
     }
     pub fn write_vectored(&self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         let (success, bytes_written) = unsafe {
-            let num_bufs = bufs.len().try_to::<c_int>().unwrap_or(c_int::MAX);
+            let num_bufs = TryInto::<c_int>::try_into(bufs.len()).unwrap_or(c_int::MAX);
             let size_or_err = libc::writev(self.as_raw_fd(), bufs.as_ptr() as *const _, num_bufs);
             (size_or_err >= 0, size_or_err as usize)
         };

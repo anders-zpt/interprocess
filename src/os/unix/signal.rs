@@ -145,7 +145,6 @@ use std::{
     mem::zeroed,
     panic, process,
 };
-use to_method::To;
 
 cfg_if! {
     if #[cfg(any(
@@ -735,9 +734,7 @@ impl From<SignalHook> for fn() {
 /// # Ok(()) }
 /// ```
 pub fn send(signal: impl Into<Option<SignalType>>, pid: impl Into<u32>) -> io::Result<()> {
-    let pid = pid
-        .to::<u32>()
-        .try_to::<i32>()
+    let pid = TryInto::<i32>::try_into(Into::<u32>::into(pid))
         .unwrap_or_else(|_| panic!("process identifier out of range"));
     debug_assert_ne!(
         pid, 0,
@@ -765,9 +762,7 @@ pub fn send(signal: impl Into<Option<SignalType>>, pid: impl Into<u32>) -> io::R
 /// # Ok(()) }
 /// ```
 pub fn send_rt(signal: impl Into<Option<u32>>, pid: impl Into<u32>) -> io::Result<()> {
-    let pid = pid
-        .to::<u32>()
-        .try_to::<i32>()
+    let pid = TryInto::<i32>::try_into(Into::<u32>::into(pid))
         .unwrap_or_else(|_| panic!("process identifier out of range"));
     debug_assert_ne!(
         pid, 0,
@@ -800,9 +795,7 @@ pub fn send_rt(signal: impl Into<Option<u32>>, pid: impl Into<u32>) -> io::Resul
 /// ```
 pub fn send_to_group(signal: impl Into<Option<SignalType>>, pid: impl Into<u32>) -> io::Result<()> {
     #[allow(clippy::neg_multiply)] // "it's more readable to just negate"? how about no
-    let pid = pid
-        .to::<u32>()
-        .try_to::<i32>()
+    let pid = TryInto::<i32>::try_into(Into::<u32>::into(pid))
         .unwrap_or_else(|_| panic!("process group identifier out of range"))
         * -1;
     let success = unsafe { libc::kill(signal.into().map_or(0, Into::into), pid) != -1 };
@@ -828,9 +821,7 @@ pub fn send_to_group(signal: impl Into<Option<SignalType>>, pid: impl Into<u32>)
 /// ```
 pub fn send_rt_to_group(signal: impl Into<Option<u32>>, pid: impl Into<u32>) -> io::Result<()> {
     #[allow(clippy::neg_multiply)]
-    let pid = pid
-        .to::<u32>()
-        .try_to::<i32>()
+    let pid = TryInto::<i32>::try_into(Into::<u32>::into(pid))
         .unwrap_or_else(|_| panic!("process identifier out of range"))
         * -1;
     debug_assert_ne!(

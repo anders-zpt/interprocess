@@ -1,12 +1,12 @@
 use super::imports::*;
 use cfg_if::cfg_if;
+use std::convert::TryInto;
 use std::{
     ffi::{CStr, CString},
     hint::unreachable_unchecked,
     io::{self, IoSlice, IoSliceMut},
     mem::zeroed,
 };
-use to_method::To;
 
 #[cfg(unix)]
 #[allow(dead_code)]
@@ -39,7 +39,7 @@ cfg_if! {
 
 #[cfg(unix)]
 pub fn to_msghdr_iovlen(iovlen: usize) -> io::Result<MsghdrIovlen> {
-    iovlen.try_to::<MsghdrIovlen>().map_err(|_| {
+    TryInto::<MsghdrIovlen>::try_into(iovlen).map_err(|_| {
         io::Error::new(
             io::ErrorKind::InvalidInput,
             format!(
@@ -51,7 +51,7 @@ pub fn to_msghdr_iovlen(iovlen: usize) -> io::Result<MsghdrIovlen> {
 }
 #[cfg(unix)]
 pub fn to_msghdr_controllen(controllen: usize) -> io::Result<MsghdrControllen> {
-    controllen.try_to::<MsghdrControllen>().map_err(|_| {
+    TryInto::<MsghdrControllen>::try_into(controllen).map_err(|_| {
         io::Error::new(
             io::ErrorKind::InvalidInput,
             format!(

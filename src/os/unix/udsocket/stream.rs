@@ -6,12 +6,12 @@ use super::{
     AncillaryData, AncillaryDataBuf, EncodedAncillaryData, ToUdSocketPath, UdSocketPath,
 };
 use std::{
+    convert::TryInto,
     fmt::{self, Debug, Formatter},
     io::{self, IoSlice, IoSliceMut, Read, Write},
     iter,
     net::Shutdown,
 };
-use to_method::To;
 
 /// A Unix domain socket byte stream, obtained either from [`UdStreamListener`](super::UdStreamListener) or by connecting to an existing server.
 ///
@@ -49,7 +49,7 @@ impl UdStream {
         Self::_connect(path.to_socket_path()?, true)
     }
     fn _connect(path: UdSocketPath<'_>, nonblocking: bool) -> io::Result<Self> {
-        let addr = path.try_to::<sockaddr_un>()?;
+        let addr = TryInto::<sockaddr_un>::try_into(path)?;
 
         let fd = c_wrappers::create_uds(SOCK_STREAM, nonblocking)?;
         unsafe {

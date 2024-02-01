@@ -2,12 +2,12 @@
 use super::c_wrappers;
 use super::{imports::*, PathDropGuard, ToUdSocketPath, UdSocketPath, UdStream};
 use std::{
+    convert::TryInto,
     fmt::{self, Debug, Formatter},
     io,
     iter::FusedIterator,
     mem::zeroed,
 };
-use to_method::To;
 
 /// A Unix domain byte stream socket server, listening for connections.
 ///
@@ -175,7 +175,7 @@ impl UdStreamListener {
         keep_drop_guard: bool,
         nonblocking: bool,
     ) -> io::Result<Self> {
-        let addr = path.borrow().try_to::<sockaddr_un>()?;
+        let addr = TryInto::<sockaddr_un>::try_into(path.borrow())?;
 
         let fd = c_wrappers::create_uds(SOCK_STREAM, nonblocking)?;
         unsafe {

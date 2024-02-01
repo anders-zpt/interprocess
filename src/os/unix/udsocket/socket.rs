@@ -9,12 +9,12 @@ use super::{
 #[cfg(any(doc, target_os = "linux"))]
 use crate::{ReliableReadMsg, Sealed};
 use std::{
+    convert::TryInto,
     fmt::{self, Debug, Formatter},
     io::{self, IoSlice, IoSliceMut},
     iter,
     mem::{size_of_val, zeroed},
 };
-use to_method::To;
 
 /// A datagram socket in the Unix domain.
 ///
@@ -51,7 +51,7 @@ impl UdSocket {
         Self::_bind(path.to_socket_path()?, true)
     }
     fn _bind(path: UdSocketPath<'_>, keep_drop_guard: bool) -> io::Result<Self> {
-        let addr = path.borrow().try_to::<sockaddr_un>()?;
+        let addr = TryInto::<sockaddr_un>::try_into(path.borrow())?;
 
         let fd = c_wrappers::create_uds(SOCK_DGRAM, false)?;
         unsafe {
@@ -97,7 +97,7 @@ impl UdSocket {
         self._set_destination(&path)
     }
     fn _set_destination(&self, path: &UdSocketPath<'_>) -> io::Result<()> {
-        let addr = path.borrow().try_to::<sockaddr_un>()?;
+        let addr = TryInto::<sockaddr_un>::try_into(path.borrow())?;
 
         unsafe {
             // SAFETY: addr is well-constructed
@@ -293,7 +293,7 @@ creates unusable socket that is not bound to any address, use `.set_destination(
         let mut addr_buf_staging = unsafe { zeroed::<sockaddr_un>() };
         // It's a void* so the doublecast is mandatory
         hdr.msg_name = &mut addr_buf_staging as *mut _ as *mut _;
-        hdr.msg_namelen = size_of_val(&addr_buf_staging).try_to::<u32>().unwrap();
+        hdr.msg_namelen = TryInto::<u32>::try_into(size_of_val(&addr_buf_staging)).unwrap();
         fill_out_msghdr_r(&mut hdr, bufs, abuf.as_mut())?;
         let (success, bytes_read) = unsafe {
             let result = libc::recvmsg(self.as_raw_fd(), &mut hdr as *mut _, 0);

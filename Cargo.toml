@@ -37,7 +37,6 @@ once_cell = { version = "1.7", optional = true }
 blocking = { version = "1.0", optional = true }
 futures-core = { version = "0.3", optional = true }
 futures-io = { version = "0.3", optional = true }
-to_method = "1.1"
 cfg-if = "1.0"
 
 [build-dependencies]

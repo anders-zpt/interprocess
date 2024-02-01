@@ -18,7 +18,6 @@ use {
             Mutex,
         },
     },
-    to_method::To,
 };
 
 /// The server for a named pipe, listening for connections to clients and producing pipe streams.

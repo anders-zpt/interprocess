@@ -16,15 +16,13 @@ pub mod tokio;
 const NUM_CLIENTS: u32 = 20;
 const NUM_CONCURRENT_CLIENTS: u32 = 4;
 
-use {
-    std::{
-        sync::{
-            mpsc::{channel, /*Receiver,*/ Sender},
-            Arc,
-        },
-        thread,
+use std::{
+    convert::TryInto,
+    sync::{
+        mpsc::{channel, /*Receiver,*/ Sender},
+        Arc,
     },
-    to_method::*,
+    thread,
 };
 
 pub type TestResult = anyhow::Result<()>;
@@ -69,7 +67,7 @@ where
     let client = Arc::new(client);
     let client_wrapper = move |msg| {
         let msg = Arc::new(msg);
-        let mut client_threads = Vec::with_capacity(NUM_CLIENTS.try_to().unwrap());
+        let mut client_threads = Vec::with_capacity(TryInto::try_into(NUM_CLIENTS).unwrap());
         for _ in 0..NUM_CLIENTS {
             let choke_guard = choke.take();
             let clientc = Arc::clone(&client);

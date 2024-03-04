@@ -8,7 +8,7 @@ edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 documentation = "https://docs.rs/interprocess"
-repository = "https://github.com/kotauskas/interprocess"
+repository = "https://github.com/zerpoint-tech/interprocess"
 
 description = "Interprocess communication toolkit"
 categories = ["os", "os::unix-apis", "os::windows-apis", "asynchronous"]

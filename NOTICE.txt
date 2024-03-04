@@ -1,6 +1,6 @@
 According to the Cargo.toml this source code is released under MIT or Apache-2.0. However in the version 1.2.1 that we forked no license has been explicitly provided.
 
-ZeroPoint Technologies has modified (as seen in the git history) the following, in order to remove the to_method dependency:
+ZeroPoint Technologies AB has modified (as seen in the git history) the following, in order to remove the to_method dependency:
 src/os/unix/fdops.rs
 src/os/unix/signal.rs
 src/os/unix/udsocket/listener.rs
